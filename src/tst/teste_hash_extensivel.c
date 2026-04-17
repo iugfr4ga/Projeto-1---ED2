@@ -48,7 +48,7 @@ void test_abrir_arquivo_inexistente_retorna_null(void) {
     HashExtensivel *h2 = hash_abrir("nao_existe.hf");
     TEST_ASSERT_NULL(h2);
 }
-/*
+
 void test_dados_persistem_apos_fechar_e_reabrir(void) {
     Registro r = { .chave = "chave01", .valor = 42 };
     TEST_ASSERT_EQUAL_INT(0, hash_inserir(h, r.chave, &r));
@@ -102,6 +102,26 @@ void test_inserir_alem_da_capacidade_do_bucket_causa_split(void) {
     }
 }
 
+void test_inserir_apos_split_persiste_apos_reabrir(void) {
+    for (int i = 0; i < 16; i++) {
+        Registro r;
+        snprintf(r.chave, sizeof(r.chave), "k%d", i);
+        r.valor = i;
+        hash_inserir(h, r.chave, &r);
+    }
+    hash_fechar(h);
+    h = hash_abrir(CAMINHO_TESTE);
+    TEST_ASSERT_NOT_NULL(h);
+
+    for (int i = 0; i < 16; i++) {
+        char chave[64];
+        snprintf(chave, sizeof(chave), "k%d", i);
+        Registro saida = {0};
+        TEST_ASSERT_EQUAL_INT(0, hash_buscar(h, chave, &saida));
+        TEST_ASSERT_EQUAL_INT(i, saida.valor);
+    }
+}
+
 void test_buscar_registro_existente(void) {
     Registro r = { .chave = "chave01", .valor = 99 };
     hash_inserir(h, r.chave, &r);
@@ -126,6 +146,7 @@ void test_buscar_com_saida_null_verifica_existencia(void) {
     TEST_ASSERT_EQUAL_INT(-1, hash_buscar(h, "nao_existe", NULL));
 }
 
+/*
 void test_atualizar_registro_existente(void) {
     Registro r = { .chave = "chave01", .valor = 1 };
     hash_inserir(h, r.chave, &r);
@@ -138,10 +159,11 @@ void test_atualizar_registro_existente(void) {
     TEST_ASSERT_EQUAL_INT(100, saida.valor);
 }
 
+
 void test_atualizar_chave_inexistente_retorna_erro(void) {
     Registro r = { .chave = "nao_existe", .valor = 1 };
     TEST_ASSERT_EQUAL_INT(-1, hash_atualizar(h, "nao_existe", &r));
-}
+}*/
 
 void test_remover_registro_existente(void) {
     Registro r = { .chave = "chave01", .valor = 1 };
@@ -175,7 +197,7 @@ void test_reinserir_apos_remover(void) {
     hash_buscar(h, "chave01", &saida);
     TEST_ASSERT_EQUAL_INT(2, saida.valor);
 }
-
+/*
 void test_contem_chave_existente(void) {
     Registro r = { .chave = "chave01", .valor = 1 };
     hash_inserir(h, r.chave, &r);
@@ -310,39 +332,40 @@ void test_dump_arquivo_contem_chave_inserida(void) {
     fclose(f);
     remove("teste_temp.hfd");
     TEST_ASSERT_TRUE_MESSAGE(encontrou, "chave01 não aparece no .hfd");
-}*/
+}
+*/
 
 int main(void) {
     UNITY_BEGIN();
 
-    /* criar / abrir / fechar */
+    // criar, abrir e fechar 
     RUN_TEST(test_criar_retorna_handle_valido);
     RUN_TEST(test_criar_falha_se_arquivo_ja_existe);
     RUN_TEST(test_abrir_hashfile_existente);
     RUN_TEST(test_abrir_arquivo_inexistente_retorna_null);
+    RUN_TEST(test_dados_persistem_apos_fechar_e_reabrir);
 
-    // RUN_TEST(test_dados_persistem_apos_fechar_e_reabrir);
+    // inserir 
+    RUN_TEST(test_inserir_registro_simples);
+    RUN_TEST(test_inserir_multiplos_registros);
+    RUN_TEST(test_inserir_chave_duplicada_retorna_erro);
+    RUN_TEST(test_inserir_alem_da_capacidade_do_bucket_causa_split);
+    RUN_TEST(test_inserir_apos_split_persiste_apos_reabrir);
 
-    // /* inserir */
-    // RUN_TEST(test_inserir_registro_simples);
-    // RUN_TEST(test_inserir_multiplos_registros);
-    // RUN_TEST(test_inserir_chave_duplicada_retorna_erro);
-    // RUN_TEST(test_inserir_alem_da_capacidade_do_bucket_causa_split);
+    // buscar 
+    RUN_TEST(test_buscar_registro_existente);
+    RUN_TEST(test_buscar_chave_inexistente_retorna_erro);
+    RUN_TEST(test_buscar_com_saida_null_verifica_existencia);
 
-    // /* buscar */
-    // RUN_TEST(test_buscar_registro_existente);
-    // RUN_TEST(test_buscar_chave_inexistente_retorna_erro);
-    // RUN_TEST(test_buscar_com_saida_null_verifica_existencia);
-
-    // /* atualizar */
+    // atualizar 
     // RUN_TEST(test_atualizar_registro_existente);
     // RUN_TEST(test_atualizar_chave_inexistente_retorna_erro);
 
-    // /* remover */
-    // RUN_TEST(test_remover_registro_existente);
-    // RUN_TEST(test_remover_chave_inexistente_retorna_erro);
-    // RUN_TEST(test_buscar_apos_remover_retorna_erro);
-    // RUN_TEST(test_reinserir_apos_remover);
+    // remover 
+    RUN_TEST(test_remover_registro_existente);
+    RUN_TEST(test_remover_chave_inexistente_retorna_erro);
+    RUN_TEST(test_buscar_apos_remover_retorna_erro);
+    RUN_TEST(test_reinserir_apos_remover);
 
     // /* contém */
     // RUN_TEST(test_contem_chave_existente);

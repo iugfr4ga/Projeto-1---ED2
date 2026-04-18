@@ -52,8 +52,10 @@ int hash_remover(HashExtensivel *h, const char *chave);
 bool hash_contem(HashExtensivel *h, const char *chave);
 
 /*  Itera sobre todos os registros existentes do hashfile. A função de callback é executada em cada registro
-    e pode usar *ctx para armazenar resultados ou *ctx pode ser passado como NULL. 
-    Retorna 0 se executar com sucesso ou -1 caso contrário.
+    e pode usar *ctx para armazenar resultados ou *ctx pode ser passado como NULL. O callback deve retornar 0 
+    para continuar a iteração ou qualquer valor diferente de 0 para interrompê-la imediatamente. 
+    Retorna 0 se iterou sobre todos os registros, o valor de parada do callback se a iteração foi interrompida, 
+    ou -1 em erro.
 */
 int hash_iterar(HashExtensivel *h, int (*callback)(const char *chave, const void *registro, void *ctx), void *ctx);
 

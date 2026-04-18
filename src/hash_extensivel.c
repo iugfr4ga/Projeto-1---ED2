@@ -371,6 +371,30 @@ int hash_buscar(HashExtensivel *h, const char *chave, void *saida) {
     return -1;
 }
 
+int hash_atualizar(HashExtensivel *h, const char *chave, const void *registro) {
+    if (h == NULL || chave == NULL || registro == NULL)
+        return -1;
+
+    int indice = hash_indice(chave, h->cab.prof_global);
+    long buck_off = h->diretorio[indice];
+
+    for (int i = 0; i < h->cab.bucket_cap; i++) {
+        long off = slot_offset(h, buck_off, i);
+        Slot s;
+        fseek(h->arquivo, off, SEEK_SET);
+        fread(&s, sizeof(Slot), 1, h->arquivo);
+
+        if (s.ativo == 1 && strncmp(s.chave, chave, HF_CHAVE_TAM) == 0) {
+            // posiciona logo após o slot e sobrescreve o registro
+            fseek(h->arquivo, off + sizeof(Slot), SEEK_SET);
+            fwrite(registro, h->cab.size_registro, 1, h->arquivo);
+            fflush(h->arquivo);
+            return 0;
+        }
+    }
+    return -1;
+}
+
 int hash_remover(HashExtensivel *h, const char *chave) {
     if (h == NULL || chave == NULL) 
         return -1;
@@ -403,4 +427,148 @@ int hash_remover(HashExtensivel *h, const char *chave) {
         }
     }
     return -1;
+}
+
+bool hash_contem(HashExtensivel *h, const char *chave) {
+    return hash_buscar(h, chave, NULL) == 0;
+}
+
+int hash_iterar(HashExtensivel *h, int (*callback)(const char *chave, const void *registro, void *ctx), void *ctx)
+{
+    if (h == NULL || callback == NULL)
+        return -1;
+
+    int tam_dir = 1 << h->cab.prof_global;
+    int slot_tam = sizeof(Slot) + h->cab.size_registro;
+
+    // marca quais offsets de bucket já foram visitados
+    long *visitados = calloc(h->cab.num_buckets, sizeof(long));
+    if (visitados == NULL)
+        return -1;
+    int n_visitados = 0;
+
+    void *buf_registro = malloc(h->cab.size_registro);
+    if (buf_registro == NULL) {
+        free(visitados);
+        return -1;
+    }
+
+    int ret = 0;
+
+    for (int d = 0; d < tam_dir && ret == 0; d++) {
+        long buck_off = h->diretorio[d];
+
+        // pula bucket já visitado (entradas duplicadas no diretório)
+        int ja_visto = 0;
+        for (int v = 0; v < n_visitados; v++) {
+            if (visitados[v] == buck_off) { 
+                ja_visto = 1; 
+                break; 
+            }
+        }
+        if (ja_visto) 
+            continue;
+
+        visitados[n_visitados++] = buck_off;
+
+        Bucket b;
+        fseek(h->arquivo, buck_off, SEEK_SET);
+        fread(&b, sizeof(Bucket), 1, h->arquivo);
+
+        for (int i = 0; i < h->cab.bucket_cap; i++) {
+            long off = slot_offset(h, buck_off, i);
+            Slot s;
+            fseek(h->arquivo, off, SEEK_SET);
+            fread(&s, sizeof(Slot), 1, h->arquivo);
+
+            if (s.ativo == 0) 
+                continue;
+
+            fread(buf_registro, h->cab.size_registro, 1, h->arquivo);
+
+            ret = callback(s.chave, buf_registro, ctx);
+            if (ret != 0) 
+                break;
+        }
+    }
+
+    free(visitados);
+    free(buf_registro);
+    return ret;
+}
+
+int hash_dump(HashExtensivel *h, const char *caminho_hfd) {
+    if (h == NULL || caminho_hfd == NULL)
+        return -1;
+
+    FILE *out = fopen(caminho_hfd, "w");
+    if (out == NULL)
+        return -1;
+
+    int tam_dir = 1 << h->cab.prof_global;
+
+    fprintf(out, "DUMP\n");
+     fprintf(out, "*Dump cabecalho\n");
+    fprintf(out, "prof_global: %d\n", h->cab.prof_global);
+    fprintf(out, "bucket_cap: %d slots\n", h->cab.bucket_cap);
+    fprintf(out, "size_registro: %d bytes\n", h->cab.size_registro);
+    fprintf(out, "num_registros: %d\n", h->cab.num_registros);
+    fprintf(out, "num_buckets: %d\n", h->cab.num_buckets);
+    fprintf(out, "num_expansoes: %d\n", h->cab.num_expansoes);
+
+    fprintf(out, "*Dump diretorios\n");
+    for (int i = 0; i < tam_dir; i++)
+        fprintf(out,"[%d] %ld\n", i, h->diretorio[i]);
+
+    fprintf(out, "*Dump buckets\n");
+
+    // visita cada bucket único 
+    long *visitados = calloc(h->cab.num_buckets + 1, sizeof(long));
+    if (visitados == NULL) { 
+        fclose(out); 
+        return -1; 
+    }
+    int n_visitados = 0;
+
+    for (int d = 0; d < tam_dir; d++) {
+        long buck_off = h->diretorio[d];
+
+        int ja_visto = 0;
+        for (int v = 0; v < n_visitados; v++) {
+            if (visitados[v] == buck_off) { 
+                ja_visto = 1; 
+                break; }
+        }
+        if (ja_visto) 
+            continue;
+        visitados[n_visitados++] = buck_off;
+
+        Bucket b;
+        fseek(h->arquivo, buck_off, SEEK_SET);
+        fread(&b, sizeof(Bucket), 1, h->arquivo);
+
+        fprintf(out, "\n[bucket offset=%ld | prof_local=%d | registros=%d/%d]\n",
+                buck_off, b.prof_local, b.num_registros, h->cab.bucket_cap);
+
+        for (int i = 0; i < h->cab.bucket_cap; i++) {
+            long off = slot_offset(h, buck_off, i);
+            Slot s;
+            fseek(h->arquivo, off, SEEK_SET);
+            fread(&s, sizeof(Slot), 1, h->arquivo);
+
+            if (s.ativo)
+                fprintf(out, "  slot %d: [ATIVO] chave=\"%s\"\n", i, s.chave);
+            else
+                fprintf(out, "  slot %d: [vazio]\n", i);
+        }
+    }
+
+    fprintf(out, "FIM DUMP");
+    //fprintf(out, "total de splits realizados: %d\n", h->cab.num_expansoes);
+    //fprintf(out,"  (cada split pode ou nao ter dobrado o diretorio;\n"
+    //    "   dobramentos ocorrem quando prof_local == prof_global)\n");
+
+    free(visitados);
+    fclose(out);
+    return 0;
 }

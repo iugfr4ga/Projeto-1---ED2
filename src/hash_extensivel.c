@@ -508,7 +508,7 @@ int hash_dump(HashExtensivel *h, const char *caminho_hfd) {
     int tam_dir = 1 << h->cab.prof_global;
 
     fprintf(out, "DUMP\n");
-     fprintf(out, "*Dump cabecalho\n");
+    fprintf(out, "*Dump cabecalho\n");
     fprintf(out, "prof_global: %d\n", h->cab.prof_global);
     fprintf(out, "bucket_cap: %d slots\n", h->cab.bucket_cap);
     fprintf(out, "size_registro: %d bytes\n", h->cab.size_registro);
@@ -564,9 +564,6 @@ int hash_dump(HashExtensivel *h, const char *caminho_hfd) {
     }
 
     fprintf(out, "FIM DUMP");
-    //fprintf(out, "total de splits realizados: %d\n", h->cab.num_expansoes);
-    //fprintf(out,"  (cada split pode ou nao ter dobrado o diretorio;\n"
-    //    "   dobramentos ocorrem quando prof_local == prof_global)\n");
 
     free(visitados);
     fclose(out);

@@ -146,7 +146,6 @@ void test_buscar_com_saida_null_verifica_existencia(void) {
     TEST_ASSERT_EQUAL_INT(-1, hash_buscar(h, "nao_existe", NULL));
 }
 
-/*
 void test_atualizar_registro_existente(void) {
     Registro r = { .chave = "chave01", .valor = 1 };
     hash_inserir(h, r.chave, &r);
@@ -159,11 +158,10 @@ void test_atualizar_registro_existente(void) {
     TEST_ASSERT_EQUAL_INT(100, saida.valor);
 }
 
-
 void test_atualizar_chave_inexistente_retorna_erro(void) {
     Registro r = { .chave = "nao_existe", .valor = 1 };
     TEST_ASSERT_EQUAL_INT(-1, hash_atualizar(h, "nao_existe", &r));
-}*/
+}
 
 void test_remover_registro_existente(void) {
     Registro r = { .chave = "chave01", .valor = 1 };
@@ -197,7 +195,7 @@ void test_reinserir_apos_remover(void) {
     hash_buscar(h, "chave01", &saida);
     TEST_ASSERT_EQUAL_INT(2, saida.valor);
 }
-/*
+
 void test_contem_chave_existente(void) {
     Registro r = { .chave = "chave01", .valor = 1 };
     hash_inserir(h, r.chave, &r);
@@ -310,7 +308,7 @@ void test_dump_cria_arquivo_hfd(void) {
     FILE *f = fopen("teste_temp.hfd", "r");
     TEST_ASSERT_NOT_NULL_MESSAGE(f, "arquivo .hfd não foi criado");
     fclose(f);
-    remove("teste_temp.hfd");
+    //remove("teste_temp.hfd");
 }
 
 void test_dump_arquivo_contem_chave_inserida(void) {
@@ -330,10 +328,9 @@ void test_dump_arquivo_contem_chave_inserida(void) {
         }
     }
     fclose(f);
-    remove("teste_temp.hfd");
+    //remove("teste_temp.hfd");
     TEST_ASSERT_TRUE_MESSAGE(encontrou, "chave01 não aparece no .hfd");
 }
-*/
 
 int main(void) {
     UNITY_BEGIN();
@@ -358,8 +355,8 @@ int main(void) {
     RUN_TEST(test_buscar_com_saida_null_verifica_existencia);
 
     // atualizar 
-    // RUN_TEST(test_atualizar_registro_existente);
-    // RUN_TEST(test_atualizar_chave_inexistente_retorna_erro);
+    RUN_TEST(test_atualizar_registro_existente);
+    RUN_TEST(test_atualizar_chave_inexistente_retorna_erro);
 
     // remover 
     RUN_TEST(test_remover_registro_existente);
@@ -367,20 +364,20 @@ int main(void) {
     RUN_TEST(test_buscar_apos_remover_retorna_erro);
     RUN_TEST(test_reinserir_apos_remover);
 
-    // /* contém */
-    // RUN_TEST(test_contem_chave_existente);
-    // RUN_TEST(test_contem_chave_inexistente);
-    // RUN_TEST(test_contem_retorna_false_apos_remover);
+    // contém
+    RUN_TEST(test_contem_chave_existente);
+    RUN_TEST(test_contem_chave_inexistente);
+    RUN_TEST(test_contem_retorna_false_apos_remover);
 
-    // /* iterar */
-    // RUN_TEST(test_iterar_conta_registros_corretos);
-    // RUN_TEST(test_iterar_nao_visita_removidos);
-    // RUN_TEST(test_iterar_para_quando_callback_retorna_nonzero);
-    // RUN_TEST(test_iterar_em_hashfile_vazio);
-    // RUN_TEST(test_iterar_com_ctx_null);
+    // iterar 
+    RUN_TEST(test_iterar_conta_registros_corretos);
+    RUN_TEST(test_iterar_nao_visita_removidos);
+    RUN_TEST(test_iterar_para_quando_callback_retorna_nonzero);
+    RUN_TEST(test_iterar_em_hashfile_vazio);
+    RUN_TEST(test_iterar_com_ctx_null);
 
-    // /* dump */
-    // RUN_TEST(test_dump_cria_arquivo_hfd);
-    // RUN_TEST(test_dump_arquivo_contem_chave_inserida);
+    // dump
+    RUN_TEST(test_dump_cria_arquivo_hfd);
+    RUN_TEST(test_dump_arquivo_contem_chave_inserida);
     return UNITY_END();
 }

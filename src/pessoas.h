@@ -1,9 +1,16 @@
 #ifndef PESSOAS_H
 #define PESSOAS_H
 
+/*  As pessoas de uma cidade são armazenadas em um hashfile. 
+    Cada pessoa é identificada por seu CPF e tem nome, sobrenome, sexo, data de nascimento e endereço (opcional). 
+    O endereço é composto por um CEP, uma face (N, S, L ou O), um número e um complemento opcional. 
+    Pessoas sem endereço são consideradas sem-teto e pessoas com endereço são consideradas moradores. 
+    O endereço deve ser definido para uma pessoa já inserida.
+*/
+
 typedef struct Habitante Habitante;
 
-/* inicializa o módulo abrindo ou criando o hashfile de habitantes no caminho indicado */
+/* Inicializa o módulo abrindo ou criando o hashfile de habitantes no caminho indicado */
 int pessoas_inicializar(const char *caminho_hf);
 
 /* Finaliza o módulo fechando o hashfile */

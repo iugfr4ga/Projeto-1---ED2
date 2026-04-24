@@ -6,6 +6,12 @@
 #define FACE_O 'O'
 #define FACE_L 'L'
 
+/*  Uma cidade é composta por um conjunto de quadras armazenadas em um hashfile e desenhadas em um arquivo SVG. 
+    As quadras são, identificadas por seu CEP. Cada quadra é um retângulo definido por suas coordenadas ancora (x, y) 
+    (canto superior esquerdo), largura (w) e altura (h), cor de preenchimento (cfill), cor de borda (cstrk) 
+    e largura de borda (sw).
+*/
+
 typedef struct Quadra Quadra;
 
 /* Inicializa a cidade abrindo ou criando o hashfile de quadras no caminho indicado */
@@ -17,7 +23,7 @@ void cidade_finalizar(void);
 /*  Insere uma quadra com os dados fornecidos.
     Retorna 0 em sucesso ou -1 em erro.
 */
-int cidade_inserir_quadra(const char *cep, double x, double y, double w, double h, const char *cfill, const char *cstrk, float sw);
+int cidade_inserir_quadra(const char *cep, double x, double y, double w, double h, const char *cfill, const char *cstrk, const char* sw);
 
 /*  Remove a quadra identificada pelo cep.
     Retorna 0 em sucesso ou -1 se não encontrada.
@@ -26,11 +32,11 @@ int cidade_remover_quadra(const char *cep);
 
 /*  Busca a quadra identificada pelo cep.
     Retorna ponteiro para Quadra em sucesso ou NULL se não encontrada.
-    O ponteiro é válido até a próxima chamada de qualquer função deste módulo.
+    O ponteiro só é válido até a próxima chamada de qualquer função deste módulo.
 */
 const Quadra* cidade_buscar_quadra(const char *cep);
 
-/*  Dado um endereço CEP/face/número, calcula as coordenadas SVG do ponto
+/*  Dado um endereço CEP/face, calcula as coordenadas SVG do ponto
     e armazena em *px e *py.
     Retorna 0 em sucesso ou -1 se a quadra não for encontrada.
 */
@@ -44,6 +50,6 @@ double  quadra_get_w(const Quadra *q);
 double quadra_get_h(const Quadra *q);
 const char* quadra_get_cfill(const Quadra *q);
 const char* quadra_get_cstrk(const Quadra *q);
-float quadra_get_sw(const Quadra *q);
+const char* quadra_get_sw(const Quadra *q);
 
 #endif

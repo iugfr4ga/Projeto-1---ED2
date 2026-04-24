@@ -1,5 +1,6 @@
 #include "cidade.h"
 #include "hash_extensivel.h"
+#include "svg.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -13,7 +14,7 @@ struct Quadra {
     double w, h;
     char cfill[COR_TAM];
     char cstrk[COR_TAM];
-    float sw;
+    char sw[COR_TAM];
 };
 
 static HashExtensivel *hf_quadras = NULL;
@@ -33,7 +34,7 @@ void cidade_finalizar(void) {
     }
 }
 
-int cidade_inserir_quadra(const char *cep, double x, double y, double w, double h, const char *cfill, const char *cstrk, float sw) {
+int cidade_inserir_quadra(const char *cep, double x, double y, double w, double h, const char *cfill, const char *cstrk, const char *sw) {
     if (cep == NULL) 
         return -1;
 
@@ -44,18 +45,20 @@ int cidade_inserir_quadra(const char *cep, double x, double y, double w, double 
     q.cfill[COR_TAM - 1] = '\0';
     strncpy(q.cstrk, cstrk, COR_TAM - 1);  
     q.cstrk[COR_TAM - 1] = '\0';
+    strncpy(q.sw, sw, COR_TAM - 1);  
+    q.sw[COR_TAM - 1] = '\0';
 
     q.x = x;
     q.y = y;
     q.w = w;
     q.h = h;
-    q.sw = sw;
 
+    svg_desenhar_quadra(q.cep, q.x, q.y, q.w, q.h, q.cfill, q.cstrk, q.sw);
     return hash_inserir(hf_quadras, cep, &q);
 }
 
 int cidade_remover_quadra(const char *cep) {
-    if (cep == NULL) 
+    if(cep == NULL) 
         return -1;
     return hash_remover(hf_quadras, cep);
 }
@@ -115,6 +118,6 @@ const char* quadra_get_cstrk(const Quadra *q) {
     return q->cstrk; 
 }
 
-float quadra_get_sw(const Quadra *q) { 
+const char* quadra_get_sw(const Quadra *q) { 
     return q->sw;    
 }

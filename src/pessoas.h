@@ -11,10 +11,10 @@
 typedef struct Habitante Habitante;
 
 /* Inicializa o módulo abrindo ou criando o hashfile de habitantes no caminho indicado */
-int pessoas_inicializar(const char *caminho_hf);
+int pessoas_inicializar(const char* caminho_hf);
 
-/* Finaliza o módulo fechando o hashfile */
-void pessoas_finalizar(void);
+/* Finaliza o módulo fechando o hashfile e gerando dump no caminho indicado*/
+void pessoas_finalizar(const char* caminho_hfd);
 
 /*  Insere um habitante sem endereço (sem-teto).
     Retorna 0 em sucesso ou -1 em erro.

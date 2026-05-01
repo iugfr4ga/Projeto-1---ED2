@@ -27,8 +27,9 @@ int cidade_inicializar(const char *caminho_hf) {
     return hf_quadras != NULL ? 0 : -1;
 }
 
-void cidade_finalizar(void) {
-    if (hf_quadras != NULL) {
+void cidade_finalizar(const char* caminho_hfd) {
+    if(hf_quadras != NULL && caminho_hfd != NULL) {
+        hash_dump(hf_quadras, caminho_hfd);
         hash_fechar(hf_quadras);
         hf_quadras = NULL;
     }
@@ -53,7 +54,7 @@ int cidade_inserir_quadra(const char *cep, double x, double y, double w, double 
     q.w = w;
     q.h = h;
 
-    svg_desenhar_quadra(q.cep, q.x, q.y, q.w, q.h, q.cfill, q.cstrk, q.sw);
+    //svg_desenhar_quadra(q.cep, q.x, q.y, q.w, q.h, q.cfill, q.cstrk, q.sw);
     return hash_inserir(hf_quadras, cep, &q);
 }
 
@@ -71,24 +72,25 @@ const Quadra* cidade_buscar_quadra(const char *cep) {
     return &buf_quadra;
 }
 
-int cidade_coordenadas(const char *cep, char face, int num, double *px, double *py) {
-    if (px == NULL || py == NULL) 
+int cidade_coordenadas(const char* cep, char face, int num, const char* sw, double* px, double* py) {
+    if(px == NULL || py == NULL) 
         return -1;
 
-    const Quadra *q = cidade_buscar_quadra(cep);
-    if (q == NULL) 
+    const Quadra* q = cidade_buscar_quadra(cep);
+    if(q == NULL) 
         return -1;
     
-    switch (face) {
-        case 'S': *px = q->x + q->w - num; *py = q->y; break;
-        case 'N': *px = q->x + num; *py = q->y + q->h; break;
-        case 'O': *px = q->x; *py = q->y + num; break;
-        case 'L': *px = q->x + q->w; *py = q->y + q->h - num; break;
+    float b = atof(sw);
+
+    switch(face) {
+        case 'S': *px = q->x + num; *py = q->y + b; break;
+        case 'N': *px = q->x + num; *py = q->y + q->h - b; break;
+        case 'O': *px = q->x + q->w - b; *py = q->y + num; break;
+        case 'L': *px = q->x + b; *py = q->y + num; break;
         default: return -1;
     }
     return 0;
 }
-
 
 const char* quadra_get_cep(const Quadra *q) { 
     return q->cep;   

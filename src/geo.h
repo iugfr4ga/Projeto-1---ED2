@@ -15,6 +15,6 @@
     O arquivo deve estar no caminho indicado por *caminho.
     Retorna 0 em sucesso ou -1 se o arquivo não puder ser aberto.
 */
-int geo_processar(const char *caminho);
+int geo_processar(const char* caminho);
 
 #endif

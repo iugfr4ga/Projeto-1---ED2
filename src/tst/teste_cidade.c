@@ -1,10 +1,10 @@
-#define UNITY_INCLUDE_DOUBLE
 #include "unity/unity.h"
 #include "../cidade.h"
 #include <string.h>
 #include <stdio.h>
 
 #define CAMINHO_HF_QUADRAS "teste_quadras.hf"
+#define CAMINHO_HFD_QUADRAS "teste_quadras.hfd"
 
 void setUp(void) {
     remove(CAMINHO_HF_QUADRAS);
@@ -12,8 +12,9 @@ void setUp(void) {
 }
 
 void tearDown(void) {
-    cidade_finalizar();
+    cidade_finalizar(CAMINHO_HFD_QUADRAS);
     remove(CAMINHO_HF_QUADRAS);
+    remove(CAMINHO_HFD_QUADRAS);
 }
 
 void test_cidade_inicializar(void) {
@@ -22,18 +23,18 @@ void test_cidade_inicializar(void) {
 }
 
 void test_cidade_inserir_quadra(void) {
-    int ret = cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
+    int ret = cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
 void test_cidade_inserir_quadra_duplicada_retorna_erro(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
-    int ret = cidade_inserir_quadra("cep01", 10, 10, 50, 30, "blue", "red", 2.0);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
+    int ret = cidade_inserir_quadra("cep01", 10, 10, 50, 30, "blue", "red", "2.0");
     TEST_ASSERT_EQUAL_INT(-1, ret);
 }
 
 void test_cidade_buscar_quadra_existente(void) {
-    cidade_inserir_quadra("cep01", 10, 20, 100, 60, "orange", "black", 1.0);
+    cidade_inserir_quadra("cep01", 10, 20, 100, 60, "orange", "black", "1.0");
     const Quadra *q = cidade_buscar_quadra("cep01");
     TEST_ASSERT_NOT_NULL(q);
     TEST_ASSERT_EQUAL_DOUBLE(10, quadra_get_x(q));
@@ -42,16 +43,16 @@ void test_cidade_buscar_quadra_existente(void) {
     TEST_ASSERT_EQUAL_DOUBLE(60, quadra_get_h(q));
     TEST_ASSERT_EQUAL_STRING("orange", quadra_get_cfill(q));
     TEST_ASSERT_EQUAL_STRING("black", quadra_get_cstrk(q));
-    TEST_ASSERT_EQUAL_FLOAT(1.0, quadra_get_sw(q));
+    TEST_ASSERT_EQUAL_STRING("1.0", quadra_get_sw(q));
 }
 
 void test_cidade_buscar_quadra_inexistente_retorna_null(void) {
-    const Quadra *q = cidade_buscar_quadra("nao_existe");
+    const Quadra* q = cidade_buscar_quadra("nao_existe");
     TEST_ASSERT_NULL(q);
 }
 
 void test_cidade_remover_quadra_existente(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     int ret = cidade_remover_quadra("cep01");
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
@@ -62,63 +63,63 @@ void test_cidade_remover_quadra_inexistente_retorna_erro(void) {
 }
 
 void test_cidade_buscar_apos_remover_retorna_null(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     cidade_remover_quadra("cep01");
     const Quadra *q = cidade_buscar_quadra("cep01");
     TEST_ASSERT_NULL(q);
 }
 
 void test_cidade_coordenadas_face_s(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     double px, py;
-    int ret = cidade_coordenadas("cep01", 'S', 10, &px, &py);
+    int ret = cidade_coordenadas("cep01", 'S', 10, "1.0", &px, &py);
     TEST_ASSERT_EQUAL_INT(0, ret);
-    TEST_ASSERT_EQUAL_DOUBLE(90, px);   // x + w - num = 0 + 100 - 10 
-    TEST_ASSERT_EQUAL_DOUBLE(0, py);   // y = 0 
+    TEST_ASSERT_EQUAL_DOUBLE(10, px);   
+    TEST_ASSERT_EQUAL_DOUBLE(1, py); 
 }
 
 void test_cidade_coordenadas_face_n(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     double px, py;
-    cidade_coordenadas("cep01", 'N', 10, &px, &py);
-    TEST_ASSERT_EQUAL_DOUBLE(10, px);   // x + num = 0 + 10
-    TEST_ASSERT_EQUAL_DOUBLE(60, py);   // y + h = 0 + 60
+    cidade_coordenadas("cep01", 'N', 10, "1.0", &px, &py);
+    TEST_ASSERT_EQUAL_DOUBLE(10, px);   
+    TEST_ASSERT_EQUAL_DOUBLE(59, py);   
 }
 
 void test_cidade_coordenadas_face_o(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     double px, py;
-    cidade_coordenadas("cep01", 'O', 10, &px, &py);
-    TEST_ASSERT_EQUAL_DOUBLE(0,  px);   // x = 0 
-    TEST_ASSERT_EQUAL_DOUBLE(10, py);   // y + num = 0 + 10
+    cidade_coordenadas("cep01", 'O', 10, "1.0", &px, &py);
+    TEST_ASSERT_EQUAL_DOUBLE(99, px);   
+    TEST_ASSERT_EQUAL_DOUBLE(10, py); 
 }
 
 void test_cidade_coordenadas_face_l(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     double px, py;
-    cidade_coordenadas("cep01", 'L', 10, &px, &py);
-    TEST_ASSERT_EQUAL_DOUBLE(100, px);  // x + w = 0 + 100
-    TEST_ASSERT_EQUAL_DOUBLE(50,  py);  // y + h - num = 0 + 60 - 10 
+    cidade_coordenadas("cep01", 'L', 10, "1.0", &px, &py);
+    TEST_ASSERT_EQUAL_DOUBLE(1, px); 
+    TEST_ASSERT_EQUAL_DOUBLE(10, py);  
 }
 
 void test_cidade_coordenadas_quadra_inexistente_retorna_erro(void) {
     double px, py;
-    int ret = cidade_coordenadas("nao_existe", 'S', 10, &px, &py);
+    int ret = cidade_coordenadas("nao_existe", 'S', 10, "1.0", &px, &py);
     TEST_ASSERT_EQUAL_INT(-1, ret);
 }
 
 void test_cidade_coordenadas_face_invalida_retorna_erro(void) {
-    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", 1.0f);
+    cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     double px, py;
-    int ret = cidade_coordenadas("cep01", 'X', 10, &px, &py);
+    int ret = cidade_coordenadas("cep01", 'X', 10, "1.0", &px, &py);
     TEST_ASSERT_EQUAL_INT(-1, ret);
 }
 
 void test_cidade_persistencia_apos_reabrir(void) {
-    cidade_inserir_quadra("cep01", 10, 20, 100, 60, "orange", "black", 1.0f);
-    cidade_finalizar();
+    cidade_inserir_quadra("cep01", 10, 20, 100, 60, "orange", "black", "1.0");
+    cidade_finalizar(CAMINHO_HFD_QUADRAS);
     TEST_ASSERT_EQUAL_INT(0, cidade_inicializar(CAMINHO_HF_QUADRAS));
-    const Quadra *q = cidade_buscar_quadra("cep01");
+    const Quadra* q = cidade_buscar_quadra("cep01");
     TEST_ASSERT_NOT_NULL(q);
     TEST_ASSERT_EQUAL_DOUBLE(10, quadra_get_x(q));
 }

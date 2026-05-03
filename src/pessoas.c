@@ -33,7 +33,7 @@ static Habitante buf_habitante;
 int pessoas_inicializar(const char *caminho_hf) {
     hf_habitantes = hash_abrir(caminho_hf);
     if(hf_habitantes == NULL)
-        hf_habitantes = hash_criar(caminho_hf, sizeof(Habitante));
+        hf_habitantes = hash_criar(caminho_hf, 50, sizeof(Habitante));
     return hf_habitantes != NULL ? 0 : -1;
 }
 

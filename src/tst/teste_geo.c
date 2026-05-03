@@ -1,4 +1,3 @@
-#define UNITY_INCLUDE_DOUBLE
 #include "unity/unity.h"
 #include "../geo.h"
 #include "../cidade.h"
@@ -7,6 +6,7 @@
 #include <string.h>
 
 #define CAMINHO_HF "teste_geo_quadras.hf"
+#define CAMINHO_HFD "teste_geo_quadras.hfd"
 #define CAMINHO_GEO "teste.geo"
 
 // para criar arquivos .geo temporarios
@@ -18,13 +18,15 @@ static void criar_geo(const char* conteudo) {
 
 void setUp(void) {
     remove(CAMINHO_HF);
+    remove(CAMINHO_HFD);
     remove(CAMINHO_GEO);
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, cidade_inicializar(CAMINHO_HF), "cidade_inicializar falhou.");
 }
 
 void tearDown(void) {
-    cidade_finalizar();
+    cidade_finalizar(CAMINHO_HFD);
     remove(CAMINHO_HF);
+    remove(CAMINHO_HFD);
     remove(CAMINHO_GEO);
 }
 

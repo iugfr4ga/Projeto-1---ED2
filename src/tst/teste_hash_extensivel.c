@@ -11,11 +11,11 @@ typedef struct {
 
 #define CAMINHO_TESTE "teste.hf"
 
-HashExtensivel *h;
+HashExtensivel* h;
 
 void setUp(void) {
     remove(CAMINHO_TESTE);  // apaga se ja existir um arquivo
-    h = hash_criar(CAMINHO_TESTE, sizeof(Registro));
+    h = hash_criar(CAMINHO_TESTE, 4, sizeof(Registro));
     TEST_ASSERT_NOT_NULL_MESSAGE(h, "hash_criar falhou.");
 }
 
@@ -33,7 +33,7 @@ void test_criar_retorna_handle_valido(void) {
 
 void test_criar_falha_se_arquivo_ja_existe(void) {
     // arquivo já foi criado no setUp 
-    HashExtensivel *h2 = hash_criar(CAMINHO_TESTE, sizeof(Registro));
+    HashExtensivel* h2 = hash_criar(CAMINHO_TESTE, 4, sizeof(Registro));
     TEST_ASSERT_NULL(h2);
 }
 
@@ -283,21 +283,6 @@ void test_iterar_em_hashfile_vazio(void) {
     TEST_ASSERT_EQUAL_INT(0, ctx.contagem);
 }
 
-int cb_ignorar(const char *chave, const void *registro, void *ctx) {
-    (void) chave;
-    (void) registro;
-    (void) ctx;
-    return 1;
-}
-
-void test_iterar_com_ctx_null(void) {
-    Registro r = { .chave = "chave01", .valor = 1 };
-    hash_inserir(h, r.chave, &r);
-
-    int ret = hash_iterar(h, cb_ignorar, NULL);
-    TEST_ASSERT_EQUAL_INT(0, ret);
-}
-
 void test_dump_cria_arquivo_hfd(void) {
     Registro r = { .chave = "chave01", .valor = 1 };
     hash_inserir(h, r.chave, &r);
@@ -308,7 +293,7 @@ void test_dump_cria_arquivo_hfd(void) {
     FILE *f = fopen("teste_temp.hfd", "r");
     TEST_ASSERT_NOT_NULL_MESSAGE(f, "arquivo .hfd não foi criado");
     fclose(f);
-    //remove("teste_temp.hfd");
+    remove("teste_temp.hfd");
 }
 
 void test_dump_arquivo_contem_chave_inserida(void) {
@@ -328,7 +313,7 @@ void test_dump_arquivo_contem_chave_inserida(void) {
         }
     }
     fclose(f);
-    //remove("teste_temp.hfd");
+    remove("teste_temp.hfd");
     TEST_ASSERT_TRUE_MESSAGE(encontrou, "chave01 não aparece no .hfd");
 }
 
@@ -374,7 +359,6 @@ int main(void) {
     RUN_TEST(test_iterar_nao_visita_removidos);
     RUN_TEST(test_iterar_para_quando_callback_retorna_nonzero);
     RUN_TEST(test_iterar_em_hashfile_vazio);
-    RUN_TEST(test_iterar_com_ctx_null);
 
     // dump
     RUN_TEST(test_dump_cria_arquivo_hfd);

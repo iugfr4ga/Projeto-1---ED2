@@ -1,6 +1,5 @@
 #include "cidade.h"
 #include "hash_extensivel.h"
-#include "svg.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -23,7 +22,7 @@ static Quadra buf_quadra;  // buffer para retorno de cidade_buscar_quadra
 int cidade_inicializar(const char *caminho_hf) {
     hf_quadras = hash_abrir(caminho_hf);
     if (hf_quadras == NULL)
-        hf_quadras = hash_criar(caminho_hf, sizeof(Quadra));
+        hf_quadras = hash_criar(caminho_hf, 50, sizeof(Quadra));
     return hf_quadras != NULL ? 0 : -1;
 }
 
@@ -35,7 +34,7 @@ void cidade_finalizar(const char* caminho_hfd) {
     }
 }
 
-int cidade_inserir_quadra(const char *cep, double x, double y, double w, double h, const char *cfill, const char *cstrk, const char *sw) {
+int cidade_inserir_quadra(const char* cep, double x, double y, double w, double h, const char* cfill, const char* cstrk, const char* sw) {
     if (cep == NULL) 
         return -1;
 
@@ -54,11 +53,10 @@ int cidade_inserir_quadra(const char *cep, double x, double y, double w, double 
     q.w = w;
     q.h = h;
 
-    //svg_desenhar_quadra(q.cep, q.x, q.y, q.w, q.h, q.cfill, q.cstrk, q.sw);
     return hash_inserir(hf_quadras, cep, &q);
 }
 
-int cidade_remover_quadra(const char *cep) {
+int cidade_remover_quadra(const char* cep) {
     if(cep == NULL) 
         return -1;
     return hash_remover(hf_quadras, cep);

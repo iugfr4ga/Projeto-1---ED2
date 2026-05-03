@@ -33,7 +33,6 @@ int geo_processar(const char *caminho) {
                 cidade_inserir_quadra(cep, x, y, w, h, cfill, cstrk, sw);
                 svg_desenhar_quadra(cep, x, y, w, h, cfill, cstrk, sw);
             }
-
         } 
         else if(strcmp(cmd, "cq") == 0) {
             char novo_fill[COR_TAM], novo_strk[COR_TAM], novo_sw[COR_TAM];

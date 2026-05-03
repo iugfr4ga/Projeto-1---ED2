@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #define CAMINHO_HF_PESSOAS "teste_pessoas.hf"
+#define CAMINHO_HFD_PESSOAS "teste_pessoas.hfd"
 
 void setUp(void) {
     remove(CAMINHO_HF_PESSOAS);
@@ -11,8 +12,9 @@ void setUp(void) {
 }
 
 void tearDown(void) {
-    pessoas_finalizar();
+    pessoas_finalizar(CAMINHO_HFD_PESSOAS);
     remove(CAMINHO_HF_PESSOAS);
+    remove(CAMINHO_HFD_PESSOAS);
 }
 
 void test_pessoas_inicializar(void) {
@@ -119,7 +121,7 @@ void test_pessoas_remover_inexistente_retorna_erro(void) {
 void test_pessoas_persistencia_apos_reabrir(void) {
     pessoas_inserir("111.111.111-11", "Joao", "Silva", 'M', "01/01/1990");
     pessoas_definir_endereco("111.111.111-11", "cep01", 'S', 10, NULL);
-    pessoas_finalizar();
+    pessoas_finalizar(CAMINHO_HFD_PESSOAS);
     TEST_ASSERT_EQUAL_INT(0, pessoas_inicializar(CAMINHO_HF_PESSOAS));
 
     const Habitante *h = pessoas_buscar("111.111.111-11");

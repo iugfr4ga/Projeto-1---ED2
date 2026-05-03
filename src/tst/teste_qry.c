@@ -1,13 +1,16 @@
-#define UNITY_INCLUDE_DOUBLE
 #include "unity/unity.h"
 #include "../qry.h"
 #include "../cidade.h"
 #include "../pessoas.h"
+#include "../svg.h"
+#include "../txt.h"
 #include <stdio.h>
 #include <string.h>
 
 #define CAMINHO_HF_QUADRAS "teste_qry_quadras.hf"
+#define CAMINHO_HFD_QUADRAS "teste_qry_quadras.hfd"
 #define CAMINHO_HF_PESSOAS "teste_qry_pessoas.hf"
+#define CAMINHO_HFD_PESSOAS "teste_qry_pessoas.hfd"
 #define CAMINHO_QRY "teste.qry"
 #define CAMINHO_SVG "teste_qry.svg"
 #define CAMINHO_TXT "teste_qry.txt"
@@ -21,6 +24,8 @@ static void criar_qry(const char* conteudo) {
 void setUp(void) {
     remove(CAMINHO_HF_QUADRAS);
     remove(CAMINHO_HF_PESSOAS);
+    remove(CAMINHO_HFD_QUADRAS);
+    remove(CAMINHO_HFD_PESSOAS);
     remove(CAMINHO_QRY);
     remove(CAMINHO_SVG);
     remove(CAMINHO_TXT);
@@ -41,10 +46,12 @@ void setUp(void) {
 void tearDown(void) {
     txt_finalizar();
     svg_finalizar();
-    cidade_finalizar();
-    pessoas_finalizar();
+    cidade_finalizar(CAMINHO_HFD_QUADRAS);
+    pessoas_finalizar(CAMINHO_HFD_PESSOAS);
     remove(CAMINHO_HF_QUADRAS);
     remove(CAMINHO_HF_PESSOAS);
+    remove(CAMINHO_HFD_QUADRAS);
+    remove(CAMINHO_HFD_PESSOAS);
     remove(CAMINHO_QRY);
     remove(CAMINHO_SVG);
     remove(CAMINHO_TXT);

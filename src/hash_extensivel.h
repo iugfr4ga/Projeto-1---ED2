@@ -23,7 +23,7 @@ typedef struct HashExtensivel HashExtensivel;
 /*  Cria um novo hashfile em disco no path passado em *caminho que armazena registros do tamanho size_registro
     e retorna o handle .
 */
-HashExtensivel* hash_criar(const char *caminho, size_t size_registro);
+HashExtensivel* hash_criar(const char* caminho, int bucket_cap, size_t size_registro);
 
 /* Abre um hashfile existente no path indicado por *caminho e retorna o handle. */
 HashExtensivel* hash_abrir(const char *caminho);

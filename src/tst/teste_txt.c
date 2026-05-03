@@ -4,7 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CAMINHO_HF  "teste_txt_pessoas.hf"
+#define CAMINHO_HF "teste_txt_pessoas.hf"
+#define CAMINHO_HFD "teste_txt_pessoas.hfd"
 #define CAMINHO_TXT "teste_txt.txt"
 
 // le o conteúdo do arquivo txt gerado para verificar a saída 
@@ -19,6 +20,7 @@ static void ler_txt(char* buf, int tam) {
 
 void setUp(void) {
     remove(CAMINHO_HF);
+    remove(CAMINHO_HFD);
     remove(CAMINHO_TXT);
     pessoas_inicializar(CAMINHO_HF);
     txt_inicializar(CAMINHO_TXT);
@@ -26,8 +28,9 @@ void setUp(void) {
 
 void tearDown(void) {
     txt_finalizar();
-    pessoas_finalizar();
+    pessoas_finalizar(CAMINHO_HFD);
     remove(CAMINHO_HF);
+    remove(CAMINHO_HFD);
     remove(CAMINHO_TXT);
 }
 

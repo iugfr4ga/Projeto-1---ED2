@@ -1,4 +1,3 @@
-#define UNITY_INCLUDE_DOUBLE
 #include "unity/unity.h"
 #include "../pm.h"
 #include "../pessoas.h"
@@ -6,6 +5,7 @@
 #include <string.h>
 
 #define CAMINHO_HF "teste_pm_pessoas.hf"
+#define CAMINHO_HFD "teste_pm_pessoas.hfd"
 #define CAMINHO_PM "teste.pm"
 
 // para criar arquivos .pm temporarios
@@ -17,12 +17,14 @@ static void criar_pm(const char* conteudo) {
 
 void setUp(void) {
     remove(CAMINHO_HF);
+    remove(CAMINHO_HFD);
     remove(CAMINHO_PM);
     TEST_ASSERT_EQUAL_INT_MESSAGE(0, pessoas_inicializar(CAMINHO_HF), "pessoas_inicializar falhou.");
 }
 
 void tearDown(void) {
-    pessoas_finalizar();
+    pessoas_finalizar(CAMINHO_HFD);
+    remove(CAMINHO_HFD);
     remove(CAMINHO_HF);
     remove(CAMINHO_PM);
 }

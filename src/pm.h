@@ -1,7 +1,9 @@
 #ifndef PM_H
 #define PM_H
 
-/*  Uma pessoa é descrita pelos seguintes comandos do arquivo .pm:
+/*  Um arquivo .pm executa comandos sobre as pessoas de uma cidade.
+    As pessoas devem ser inicializadas antes de processar o arquivo .pm. 
+    Os comandos do arquivo .pm são:
 
     p <cpf> <nome> <sobrenome> <sexo> <nasc>
     - Insere uma pessoa com os dados fornecidos.

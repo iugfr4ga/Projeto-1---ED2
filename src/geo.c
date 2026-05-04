@@ -8,8 +8,8 @@
 #define COR_TAM 16
 #define CEP_TAM 32
 
-int geo_processar(const char *caminho) {
-    FILE *f = fopen(caminho, "r");
+int geo_processar(const char* caminho) {
+    FILE* f = fopen(caminho, "r");
     if(f == NULL)
         return -1;
 

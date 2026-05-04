@@ -124,7 +124,7 @@ static void cmd_censo(void) {
 
 static void cmd_h(const char* cpf) {
     const Habitante* hab = pessoas_buscar(cpf);
-    if (hab == NULL) 
+    if(hab == NULL) 
         return;
     txt_habitante(hab);
 }
@@ -182,7 +182,7 @@ static void cmd_dspj(const char* cpf) {
 
 int qry_processar(const char* caminho) {
     FILE* f = fopen(caminho, "r");
-    if (f == NULL)
+    if(f == NULL)
         return -1;
 
     char linha[QRY_LINHA_TAM];

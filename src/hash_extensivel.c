@@ -28,30 +28,30 @@ typedef struct {
 } Slot;
 
 struct HashExtensivel {
-    FILE *arquivo;      // ponteiro para o arquivo
+    FILE* arquivo;      // ponteiro para o arquivo
     Cabecalho cab;      // cabeçalho do hashfile
-    long *diretorio;    // vetor de offsets de cada bucket
+    long* diretorio;    // vetor de offsets de cada bucket
 };
 
-static void cab_escrever(HashExtensivel *h) {
+static void cab_escrever(HashExtensivel* h) {
     rewind(h->arquivo);
     fwrite(&h->cab, sizeof(Cabecalho), 1, h->arquivo);
     fflush(h->arquivo);
 }
 
-static void cab_ler(HashExtensivel *h) {
+static void cab_ler(HashExtensivel* h) {
     rewind(h->arquivo);
     fread(&h->cab, sizeof(Cabecalho), 1, h->arquivo);
 }
 
-static void dir_escrever(HashExtensivel *h) {
+static void dir_escrever(HashExtensivel* h) {
     int tam = 1 << h->cab.prof_global;  // quantidade atual de diretorios = 2^prof_global
     fseek(h->arquivo, h->cab.dir_offset, SEEK_SET);
     fwrite(h->diretorio, sizeof(long), tam, h->arquivo);
     fflush(h->arquivo);
 }
 
-static void dir_ler(HashExtensivel *h) {
+static void dir_ler(HashExtensivel* h) {
     int tam = 1 << h->cab.prof_global; // 2^prof_global
     fseek(h->arquivo, h->cab.dir_offset, SEEK_SET);
     fread(h->diretorio, sizeof(long), tam, h->arquivo);
@@ -59,16 +59,16 @@ static void dir_ler(HashExtensivel *h) {
 
 
 // Função de hash FNV-1a
-static int hash_indice(const char *chave, int prof_global) {
+static int hash_indice(const char* chave, int prof_global) {
     unsigned int hash = 2166136261u;
-    for (const unsigned char *p = (const unsigned char *)chave; *p; p++) {
+    for(const unsigned char *p = (const unsigned char *)chave; *p; p++) {
         hash ^= *p;
         hash *= 16777619u;
     }
     return (int)(hash & ((1u << prof_global) - 1));
 }
 
-static long bucket_alocar(HashExtensivel *h, int prof_local) {
+static long bucket_alocar(HashExtensivel* h, int prof_local) {
     long offset = h->cab.prox_livre;
 
     Bucket b;
@@ -81,8 +81,8 @@ static long bucket_alocar(HashExtensivel *h, int prof_local) {
  
     // zera todos os slots do bucket
     int slot_tam = sizeof(Slot) + h->cab.size_registro;
-    char *zero = calloc(1, slot_tam);
-    for (int i = 0; i < h->cab.bucket_cap; i++)
+    char* zero = calloc(1, slot_tam);
+    for(int i = 0; i < h->cab.bucket_cap; i++)
         fwrite(zero, slot_tam, 1, h->arquivo);
 
     free(zero);
@@ -92,29 +92,29 @@ static long bucket_alocar(HashExtensivel *h, int prof_local) {
     return offset;
 }
 
-static long slot_offset(HashExtensivel *h, long bucket_off, int i) {
+static long slot_offset(HashExtensivel* h, long bucket_off, int i) {
     int slot_tam = sizeof(Slot) + h->cab.size_registro;
     return bucket_off + sizeof(Bucket) + i * slot_tam;
 }
 
-static int inserir_em_bucket(HashExtensivel *h, long bucket_off, const char *chave, const void *registro) {
+static int inserir_em_bucket(HashExtensivel* h, long bucket_off, const char* chave, const void* registro) {
     Bucket b;
     fseek(h->arquivo, bucket_off, SEEK_SET);
     fread(&b, sizeof(Bucket), 1, h->arquivo);
  
-    if (b.num_registros >= h->cab.bucket_cap)
+    if(b.num_registros >= h->cab.bucket_cap)
         return -1;  // bucket cheio
  
     int slot_tam = sizeof(Slot) + h->cab.size_registro;
  
     // procura primeiro slot inativo 
-    for (int i = 0; i < h->cab.bucket_cap; i++) {
+    for(int i = 0; i < h->cab.bucket_cap; i++) {
         long off = slot_offset(h, bucket_off, i);
         Slot s;
         fseek(h->arquivo, off, SEEK_SET);
         fread(&s, sizeof(Slot), 1, h->arquivo);
  
-        if (s.ativo == 0) {
+        if(s.ativo == 0) {
             // escreve no slot 
             s.ativo = 1;
             strncpy(s.chave, chave, HF_CHAVE_TAM - 1);
@@ -134,7 +134,7 @@ static int inserir_em_bucket(HashExtensivel *h, long bucket_off, const char *cha
     return -1;  // não encontrou slot livre (bucket cheio) 
 }
 
-static void split(HashExtensivel *h, int indice) {
+static void split(HashExtensivel* h, int indice) {
     long old_off = h->diretorio[indice];
     Bucket b_old;
     fseek(h->arquivo, old_off, SEEK_SET);
@@ -143,19 +143,18 @@ static void split(HashExtensivel *h, int indice) {
     int prof_local = b_old.prof_local;
  
     // se necessário, dobra o diretório
-    if (prof_local == h->cab.prof_global) {
+    if(prof_local == h->cab.prof_global) {
         int tam_old = 1 << h->cab.prof_global; // 2^prof_global
         int tam_new = tam_old * 2;
  
-        long *novo_dir = realloc(h->diretorio, tam_new * sizeof(long));
+        long* novo_dir = realloc(h->diretorio, tam_new * sizeof(long));
         h->diretorio = novo_dir;
  
         // duplica entradas
-        for (int i = 0; i < tam_old; i++)
+        for(int i = 0; i < tam_old; i++)
             h->diretorio[tam_old + i] = h->diretorio[i];
  
         h->cab.prof_global++;
-        h->cab.num_expansoes++;
  
         // reloca diretório para o fim do arquivo para não colidir com buckets
         h->cab.dir_offset = h->cab.prox_livre;
@@ -164,7 +163,8 @@ static void split(HashExtensivel *h, int indice) {
         cab_escrever(h);
         dir_escrever(h);
     }
- 
+    h->cab.num_expansoes++;
+
     // aloca novo bucket com prof_local + 1 
     int nova_prof = prof_local + 1;
     long new_off = bucket_alocar(h, nova_prof);
@@ -181,11 +181,11 @@ static void split(HashExtensivel *h, int indice) {
     int prefixo_base = indice & ((1 << prof_local) - 1); // prefixo compartilhado pelos buckets antigo e novo
     int mascara_nova = (1 << nova_prof) - 1; // mascara para extrair os bits relevantes para o novo bucket
  
-    for (int i = 0; i < tam; i++) {
-        if ((i & ((1 << prof_local) - 1)) != prefixo_base) 
+    for(int i = 0; i < tam; i++) {
+        if((i & ((1 << prof_local) - 1)) != prefixo_base) 
             continue;
             
-        if ((i & mascara_nova) == prefixo_base)
+        if((i & mascara_nova) == prefixo_base)
             h->diretorio[i] = old_off;   // bit nova_prof-1 == 0
         else
             h->diretorio[i] = new_off;   // bit nova_prof-1 == 1 
@@ -193,19 +193,19 @@ static void split(HashExtensivel *h, int indice) {
  
     // coleta registros vivos do bucket antigo 
     int slot_tam = sizeof(Slot) + h->cab.size_registro;
-    char *buf = malloc(slot_tam);
+    char* buf = malloc(slot_tam);
  
-    char **chaves = malloc(h->cab.bucket_cap * sizeof(char*));
-    void **dados  = malloc(h->cab.bucket_cap * sizeof(void*));
+    char** chaves = malloc(h->cab.bucket_cap * sizeof(char*));
+    void** dados = malloc(h->cab.bucket_cap * sizeof(void*));
     int count = 0;
  
-    for (int i = 0; i < h->cab.bucket_cap; i++) {
+    for(int i = 0; i < h->cab.bucket_cap; i++) {
         long off = slot_offset(h, old_off, i);
         Slot s;
         fseek(h->arquivo, off, SEEK_SET);
         fread(&s, sizeof(Slot), 1, h->arquivo);
  
-        if (s.ativo == 0) 
+        if(s.ativo == 0) 
             continue;
  
         chaves[count] = malloc(HF_CHAVE_TAM);
@@ -228,7 +228,7 @@ static void split(HashExtensivel *h, int indice) {
     fwrite(&b_old, sizeof(Bucket), 1, h->arquivo);
  
     // redistribui os registros coletados 
-    for (int i = 0; i < count; i++) {
+    for(int i = 0; i < count; i++) {
         int idx = hash_indice(chaves[i], h->cab.prof_global);
         inserir_em_bucket(h, h->diretorio[idx], chaves[i], dados[i]);
         free(chaves[i]);
@@ -254,7 +254,7 @@ HashExtensivel* hash_criar(const char* caminho, int bucket_cap, size_t size_regi
     if(f == NULL) 
         return NULL;
  
-    HashExtensivel *h = calloc(1, sizeof(HashExtensivel));
+    HashExtensivel* h = calloc(1, sizeof(HashExtensivel));
     if(h == NULL) { 
         fclose(f); 
         return NULL; 
@@ -292,13 +292,13 @@ HashExtensivel* hash_criar(const char* caminho, int bucket_cap, size_t size_regi
     return h;
 }
 
-HashExtensivel *hash_abrir(const char *caminho) {
-    FILE *f = fopen(caminho, "r+b");
-    if (f == NULL) 
+HashExtensivel* hash_abrir(const char* caminho) {
+    FILE* f = fopen(caminho, "r+b");
+    if(f == NULL) 
         return NULL;
  
-    HashExtensivel *h = calloc(1, sizeof(HashExtensivel));
-    if (h == NULL) { 
+    HashExtensivel* h = calloc(1, sizeof(HashExtensivel));
+    if(h == NULL) { 
         fclose(f); 
         return NULL; 
     }
@@ -309,7 +309,7 @@ HashExtensivel *hash_abrir(const char *caminho) {
     // aloca e carrega o diretório
     int tam = 1 << h->cab.prof_global;
     h->diretorio = malloc(tam * sizeof(long));
-    if (h->diretorio == NULL) { 
+    if(h->diretorio == NULL) { 
         fclose(f); 
         free(h); 
         return NULL; 
@@ -319,8 +319,8 @@ HashExtensivel *hash_abrir(const char *caminho) {
     return h;
 }
  
-void hash_fechar(HashExtensivel *h) {
-    if (h == NULL) 
+void hash_fechar(HashExtensivel* h) {
+    if(h == NULL) 
         return;
 
     cab_escrever(h);
@@ -330,7 +330,7 @@ void hash_fechar(HashExtensivel *h) {
     free(h);
 }
 
-int hash_inserir(HashExtensivel *h, const char *chave, const void *registro) {
+int hash_inserir(HashExtensivel* h, const char* chave, const void* registro) {
     if(h == NULL || chave == NULL || registro == NULL) 
         return -1;
  
@@ -356,22 +356,22 @@ int hash_inserir(HashExtensivel *h, const char *chave, const void *registro) {
     return 0;
 }
 
-int hash_buscar(HashExtensivel *h, const char *chave, void *saida) {
-    if (h == NULL || chave == NULL) 
+int hash_buscar(HashExtensivel* h, const char* chave, void* saida) {
+    if(h == NULL || chave == NULL) 
         return -1;
  
     int indice = hash_indice(chave, h->cab.prof_global);
     long buck_off = h->diretorio[indice];
  
-    for (int i = 0; i < h->cab.bucket_cap; i++) {
+    for(int i = 0; i < h->cab.bucket_cap; i++) {
         long off = slot_offset(h, buck_off, i);
         Slot s;
         fseek(h->arquivo, off, SEEK_SET);
         fread(&s, sizeof(Slot), 1, h->arquivo);
         
         // verifica se slot do bucket esta ativo e compara as chaves
-        if (s.ativo == 1 && strncmp(s.chave, chave, HF_CHAVE_TAM) == 0) {
-            if (saida != NULL)
+        if(s.ativo == 1 && strncmp(s.chave, chave, HF_CHAVE_TAM) == 0) {
+            if(saida != NULL)
                 fread(saida, h->cab.size_registro, 1, h->arquivo);
             return 0;
         }
@@ -379,20 +379,20 @@ int hash_buscar(HashExtensivel *h, const char *chave, void *saida) {
     return -1;
 }
 
-int hash_atualizar(HashExtensivel *h, const char *chave, const void *registro) {
-    if (h == NULL || chave == NULL || registro == NULL)
+int hash_atualizar(HashExtensivel* h, const char* chave, const void* registro) {
+    if(h == NULL || chave == NULL || registro == NULL)
         return -1;
 
     int indice = hash_indice(chave, h->cab.prof_global);
     long buck_off = h->diretorio[indice];
 
-    for (int i = 0; i < h->cab.bucket_cap; i++) {
+    for(int i = 0; i < h->cab.bucket_cap; i++) {
         long off = slot_offset(h, buck_off, i);
         Slot s;
         fseek(h->arquivo, off, SEEK_SET);
         fread(&s, sizeof(Slot), 1, h->arquivo);
 
-        if (s.ativo == 1 && strncmp(s.chave, chave, HF_CHAVE_TAM) == 0) {
+        if(s.ativo == 1 && strncmp(s.chave, chave, HF_CHAVE_TAM) == 0) {
             // posiciona logo após o slot e sobrescreve o registro
             fseek(h->arquivo, off + sizeof(Slot), SEEK_SET);
             fwrite(registro, h->cab.size_registro, 1, h->arquivo);
@@ -403,8 +403,8 @@ int hash_atualizar(HashExtensivel *h, const char *chave, const void *registro) {
     return -1;
 }
 
-int hash_remover(HashExtensivel *h, const char *chave) {
-    if (h == NULL || chave == NULL) 
+int hash_remover(HashExtensivel* h, const char* chave) {
+    if(h == NULL || chave == NULL) 
         return -1;
  
     int indice = hash_indice(chave, h->cab.prof_global);
@@ -413,13 +413,13 @@ int hash_remover(HashExtensivel *h, const char *chave) {
     fseek(h->arquivo, buck_off, SEEK_SET);
     fread(&b, sizeof(Bucket), 1, h->arquivo);
  
-    for (int i = 0; i < h->cab.bucket_cap; i++) {
+    for(int i = 0; i < h->cab.bucket_cap; i++) {
         long off = slot_offset(h, buck_off, i);
         Slot s;
         fseek(h->arquivo, off, SEEK_SET);
         fread(&s, sizeof(Slot), 1, h->arquivo);
  
-        if (s.ativo == 1 && strncmp(s.chave, chave, HF_CHAVE_TAM) == 0) {
+        if(s.ativo == 1 && strncmp(s.chave, chave, HF_CHAVE_TAM) == 0) {
             // marca slot como inativo, podendo ser reutilizado
             s.ativo = 0;
             fseek(h->arquivo, off, SEEK_SET);
@@ -437,44 +437,44 @@ int hash_remover(HashExtensivel *h, const char *chave) {
     return -1;
 }
 
-bool hash_contem(HashExtensivel *h, const char *chave) {
+bool hash_contem(HashExtensivel* h, const char* chave) {
     return hash_buscar(h, chave, NULL) == 0;
 }
 
-int hash_iterar(HashExtensivel *h, int (*callback)(const char *chave, const void *registro, void *ctx), void *ctx)
+int hash_iterar(HashExtensivel* h, int (*callback)(const char* chave, const void* registro, void* ctx), void* ctx)
 {
-    if (h == NULL || callback == NULL)
+    if(h == NULL || callback == NULL)
         return -1;
 
     int tam_dir = 1 << h->cab.prof_global;
     int slot_tam = sizeof(Slot) + h->cab.size_registro;
 
-    // marca quais offsets de bucket já foram visitados
-    long *visitados = calloc(h->cab.num_buckets, sizeof(long));
-    if (visitados == NULL)
+    // marca quais offsets de bucket ja foram visitados
+    long* visitados = calloc(h->cab.num_buckets, sizeof(long));
+    if(visitados == NULL)
         return -1;
     int n_visitados = 0;
 
-    void *buf_registro = malloc(h->cab.size_registro);
-    if (buf_registro == NULL) {
+    void* buf_registro = malloc(h->cab.size_registro);
+    if(buf_registro == NULL) {
         free(visitados);
         return -1;
     }
 
     int ret = 0;
 
-    for (int d = 0; d < tam_dir && ret == 0; d++) {
+    for(int d = 0; d < tam_dir && ret == 0; d++) {
         long buck_off = h->diretorio[d];
 
         // pula bucket já visitado (entradas duplicadas no diretório)
         int ja_visto = 0;
-        for (int v = 0; v < n_visitados; v++) {
-            if (visitados[v] == buck_off) { 
+        for(int v = 0; v < n_visitados; v++) {
+            if(visitados[v] == buck_off) { 
                 ja_visto = 1; 
                 break; 
             }
         }
-        if (ja_visto) 
+        if(ja_visto) 
             continue;
 
         visitados[n_visitados++] = buck_off;
@@ -483,23 +483,22 @@ int hash_iterar(HashExtensivel *h, int (*callback)(const char *chave, const void
         fseek(h->arquivo, buck_off, SEEK_SET);
         fread(&b, sizeof(Bucket), 1, h->arquivo);
 
-        for (int i = 0; i < h->cab.bucket_cap; i++) {
+        for(int i = 0; i < h->cab.bucket_cap; i++) {
             long off = slot_offset(h, buck_off, i);
             Slot s;
             fseek(h->arquivo, off, SEEK_SET);
             fread(&s, sizeof(Slot), 1, h->arquivo);
 
-            if (s.ativo == 0) 
+            if(s.ativo == 0) 
                 continue;
 
             fread(buf_registro, h->cab.size_registro, 1, h->arquivo);
 
             ret = callback(s.chave, buf_registro, ctx);
-            if (ret != 0) 
+            if(ret != 0) 
                 break;
         }
     }
-
     free(visitados);
     free(buf_registro);
     return ret;
@@ -538,6 +537,7 @@ int hash_dump(HashExtensivel* h, const char* caminho_hfd) {
     }
     int n_visitados = 0;
 
+    int i = 1;
     for(int d = 0; d < tam_dir; d++) {
         long buck_off = h->diretorio[d];
 
@@ -557,9 +557,9 @@ int hash_dump(HashExtensivel* h, const char* caminho_hfd) {
         fread(&b, sizeof(Bucket), 1, h->arquivo);
 
         fprintf(out, "Bucket %d | offset=%ld | prof_local=%d | registros=%d/%d | splits=%d\n",
-                d, buck_off, b.prof_local, b.num_registros, h->cab.bucket_cap, b.num_splits);
+                i, buck_off, b.prof_local, b.num_registros, h->cab.bucket_cap, b.num_splits);
 
-        for (int i = 0; i < h->cab.bucket_cap; i++) {
+        for(int i = 0; i < h->cab.bucket_cap; i++) {
             long off = slot_offset(h, buck_off, i);
             Slot s;
             fseek(h->arquivo, off, SEEK_SET);
@@ -567,6 +567,7 @@ int hash_dump(HashExtensivel* h, const char* caminho_hfd) {
 
             fprintf(out, "%d | %s\n", s.ativo, s.chave);
         }
+        i++;
     }
     fprintf(out, "FIM DUMP");
 

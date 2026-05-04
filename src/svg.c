@@ -41,7 +41,7 @@ void svg_desenhar_quadra(const char* cep, double x, double y, double w, double h
 }
 
 void svg_marcar_remocao(double x, double y) {
-    if (svg_arquivo == NULL)
+    if(svg_arquivo == NULL)
         return;
 
     // X vermelho
@@ -57,7 +57,7 @@ void svg_marcar_remocao(double x, double y) {
 }
 
 void svg_marcar_moradores(double x, double y, double w, double h, const char* sw, int n, int s, int l, int o, int total) {
-    if (svg_arquivo == NULL)
+    if(svg_arquivo == NULL)
         return;
 
     double cx = x + w / 2.0;
@@ -120,7 +120,7 @@ void svg_marcar_obito(double px, double py, char face) {
             px, py - d, px, py + d);
 }
 
-void svg_marcar_mudanca(double px, double py, const char *cpf) {
+void svg_marcar_mudanca(double px, double py, const char* cpf) {
     if(svg_arquivo == NULL)
         return;
 

@@ -14,13 +14,13 @@ typedef struct {
 HashExtensivel* h;
 
 void setUp(void) {
-    remove(CAMINHO_TESTE);  // apaga se ja existir um arquivo
+    remove(CAMINHO_TESTE); 
     h = hash_criar(CAMINHO_TESTE, 4, sizeof(Registro));
     TEST_ASSERT_NOT_NULL_MESSAGE(h, "hash_criar falhou.");
 }
 
 void tearDown(void) {
-    if (h) {
+    if(h) {
         hash_fechar(h);
         h = NULL;
     }
@@ -45,7 +45,7 @@ void test_abrir_hashfile_existente(void) {
 }
 
 void test_abrir_arquivo_inexistente_retorna_null(void) {
-    HashExtensivel *h2 = hash_abrir("nao_existe.hf");
+    HashExtensivel* h2 = hash_abrir("nao_existe.hf");
     TEST_ASSERT_NULL(h2);
 }
 
@@ -69,7 +69,7 @@ void test_inserir_registro_simples(void) {
 }
 
 void test_inserir_multiplos_registros(void) {
-    for (int i = 0; i < 10; i++) {
+    for(int i = 0; i < 10; i++) {
         Registro r;
         snprintf(r.chave, sizeof(r.chave), "chave%02d", i);
         r.valor = i;
@@ -92,8 +92,8 @@ void test_inserir_alem_da_capacidade_do_bucket_causa_split(void) {
         int ret = hash_inserir(h, r.chave, &r);
         TEST_ASSERT_EQUAL_INT_MESSAGE(0, ret, r.chave);
     }
-    // todos os registros devem ser encontradoss após os splits
-    for (int i = 0; i < 16; i++) {
+    // todos os registros devem ser encontradoss apos os splits
+    for(int i = 0; i < 16; i++) {
         char chave[64];
         snprintf(chave, sizeof(chave), "k%d", i);
         Registro saida = {0};
@@ -103,7 +103,7 @@ void test_inserir_alem_da_capacidade_do_bucket_causa_split(void) {
 }
 
 void test_inserir_apos_split_persiste_apos_reabrir(void) {
-    for (int i = 0; i < 16; i++) {
+    for(int i = 0; i < 16; i++) {
         Registro r;
         snprintf(r.chave, sizeof(r.chave), "k%d", i);
         r.valor = i;
@@ -113,7 +113,7 @@ void test_inserir_apos_split_persiste_apos_reabrir(void) {
     h = hash_abrir(CAMINHO_TESTE);
     TEST_ASSERT_NOT_NULL(h);
 
-    for (int i = 0; i < 16; i++) {
+    for(int i = 0; i < 16; i++) {
         char chave[64];
         snprintf(chave, sizeof(chave), "k%d", i);
         Registro saida = {0};
@@ -218,25 +218,25 @@ typedef struct {
     int soma_valores;
 } CtxIterar;
 
-int cb_somar(const char *chave, const void *registro, void *ctx) {
+int cb_somar(const char* chave, const void* registro, void* ctx) {
     (void) chave;
-    CtxIterar *c = (CtxIterar*) ctx;
-    const Registro *r = (const Registro*) registro;
+    CtxIterar* c = (CtxIterar*) ctx;
+    const Registro* r = (const Registro*) registro;
     c->contagem++;
     c->soma_valores += r->valor;
     return 0;
 }
 
-int cb_parar_no_primeiro(const char *chave, const void *registro, void *ctx) {
+int cb_parar_no_primeiro(const char* chave, const void* registro, void* ctx) {
     (void) chave; 
     (void) registro;
-    int *contagem = (int*) ctx;
+    int* contagem = (int*) ctx;
     (*contagem)++;
     return 1;  // para imediatamente no primeiro
 }
 
 void test_iterar_conta_registros_corretos(void) {
-    for (int i = 0; i < 5; i++) {
+    for(int i = 0; i < 5; i++) {
         Registro r;
         snprintf(r.chave, sizeof(r.chave), "k%d", i);
         r.valor = i;
@@ -250,7 +250,7 @@ void test_iterar_conta_registros_corretos(void) {
 }
 
 void test_iterar_nao_visita_removidos(void) {
-    for (int i = 0; i < 5; i++) {
+    for(int i = 0; i < 5; i++) {
         Registro r;
         snprintf(r.chave, sizeof(r.chave), "k%d", i);
         r.valor = i;
@@ -265,7 +265,7 @@ void test_iterar_nao_visita_removidos(void) {
 }
 
 void test_iterar_para_quando_callback_retorna_nonzero(void) {
-    for (int i = 0; i < 5; i++) {
+    for(int i = 0; i < 5; i++) {
         Registro r;
         snprintf(r.chave, sizeof(r.chave), "k%d", i);
         r.valor = i;
@@ -290,7 +290,7 @@ void test_dump_cria_arquivo_hfd(void) {
     int ret = hash_dump(h, "teste_temp.hfd");
     TEST_ASSERT_EQUAL_INT(0, ret);
 
-    FILE *f = fopen("teste_temp.hfd", "r");
+    FILE* f = fopen("teste_temp.hfd", "r");
     TEST_ASSERT_NOT_NULL_MESSAGE(f, "arquivo .hfd não foi criado");
     fclose(f);
     remove("teste_temp.hfd");
@@ -301,13 +301,13 @@ void test_dump_arquivo_contem_chave_inserida(void) {
     hash_inserir(h, r.chave, &r);
     hash_dump(h, "teste_temp.hfd");
 
-    FILE *f = fopen("teste_temp.hfd", "r");
+    FILE* f = fopen("teste_temp.hfd", "r");
     TEST_ASSERT_NOT_NULL(f);
 
     char linha[256];
     int encontrou = 0;
     while (fgets(linha, sizeof(linha), f)) {
-        if (strstr(linha, "chave01")) {
+        if(strstr(linha, "chave01")) {
             encontrou = 1;
             break;
         }

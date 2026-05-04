@@ -16,12 +16,12 @@ struct Quadra {
     char sw[COR_TAM];
 };
 
-static HashExtensivel *hf_quadras = NULL;
+static HashExtensivel* hf_quadras = NULL;
 static Quadra buf_quadra;  // buffer para retorno de cidade_buscar_quadra
 
-int cidade_inicializar(const char *caminho_hf) {
+int cidade_inicializar(const char* caminho_hf) {
     hf_quadras = hash_abrir(caminho_hf);
-    if (hf_quadras == NULL)
+    if(hf_quadras == NULL)
         hf_quadras = hash_criar(caminho_hf, 50, sizeof(Quadra));
     return hf_quadras != NULL ? 0 : -1;
 }
@@ -35,7 +35,7 @@ void cidade_finalizar(const char* caminho_hfd) {
 }
 
 int cidade_inserir_quadra(const char* cep, double x, double y, double w, double h, const char* cfill, const char* cstrk, const char* sw) {
-    if (cep == NULL) 
+    if(cep == NULL) 
         return -1;
 
     Quadra q;
@@ -62,10 +62,10 @@ int cidade_remover_quadra(const char* cep) {
     return hash_remover(hf_quadras, cep);
 }
 
-const Quadra* cidade_buscar_quadra(const char *cep) {
-    if (cep == NULL) 
+const Quadra* cidade_buscar_quadra(const char* cep) {
+    if(cep == NULL) 
         return NULL;
-    if (hash_buscar(hf_quadras, cep, &buf_quadra) != 0)
+    if(hash_buscar(hf_quadras, cep, &buf_quadra) != 0)
         return NULL;
     return &buf_quadra;
 }
@@ -90,34 +90,34 @@ int cidade_coordenadas(const char* cep, char face, int num, const char* sw, doub
     return 0;
 }
 
-const char* quadra_get_cep(const Quadra *q) { 
+const char* quadra_get_cep(const Quadra* q) { 
     return q->cep;   
 }
 
-double quadra_get_x(const Quadra *q) { 
+double quadra_get_x(const Quadra* q) { 
     return q->x;     
 }
 
-double quadra_get_y(const Quadra *q) { 
+double quadra_get_y(const Quadra* q) { 
     return q->y;     
 }
 
-double quadra_get_w(const Quadra *q) { 
+double quadra_get_w(const Quadra* q) { 
     return q->w;     
 }
 
-double quadra_get_h(const Quadra *q) { 
+double quadra_get_h(const Quadra* q) { 
     return q->h;     
 }
 
-const char* quadra_get_cfill(const Quadra *q) { 
+const char* quadra_get_cfill(const Quadra* q) { 
     return q->cfill; 
 }
 
-const char* quadra_get_cstrk(const Quadra *q) { 
+const char* quadra_get_cstrk(const Quadra* q) { 
     return q->cstrk; 
 }
 
-const char* quadra_get_sw(const Quadra *q) { 
+const char* quadra_get_sw(const Quadra* q) { 
     return q->sw;    
 }

@@ -2,6 +2,7 @@
 #define QRY_H
 
 /*  Um arquivo .qry executa comandos sobre a cidade e suas pessoas e gera saídas em TXT e SVG. 
+    A cidade e as pessoas devem ser inicializadas antes de processar o arquivo .qry.
     Os comandos do arquivo .qry são:
 
     rq <cep>

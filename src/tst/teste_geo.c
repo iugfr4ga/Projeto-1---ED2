@@ -30,20 +30,17 @@ void tearDown(void) {
     remove(CAMINHO_GEO);
 }
 
-// geo_processar retorna 0 com arquivo válido
 void test_geo_processar_arquivo_valido(void) {
     criar_geo("cq 1.0 orange black\nq cep01 0 0 100 60\n");
     int ret = geo_processar(CAMINHO_GEO);
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
-// geo_processar retorna -1 se o arquivo não existir
 void test_geo_processar_arquivo_inexistente(void) {
     int ret = geo_processar("nao_existe.geo");
     TEST_ASSERT_EQUAL_INT(-1, ret);
 }
 
-// uma quadra inserida via .geo pode ser encontrada 
 void test_geo_insere_quadra(void) {
     criar_geo("cq 1.0 orange black\nq cep01 10 20 100 60\n");
     geo_processar(CAMINHO_GEO);
@@ -51,7 +48,6 @@ void test_geo_insere_quadra(void) {
     TEST_ASSERT_NOT_NULL(q);
 }
 
-// coordenadas da quadra sao lidas corretamente 
 void test_geo_coordenadas_corretas(void) {
     criar_geo("cq 1.0 orange black\nq cep01 10 20 100 60\n");
     geo_processar(CAMINHO_GEO);
@@ -63,7 +59,6 @@ void test_geo_coordenadas_corretas(void) {
     TEST_ASSERT_EQUAL_DOUBLE(60, quadra_get_h(q));
 }
 
-// estilo do cq é aplicado na quadra seguinte
 void test_geo_estilo_aplicado(void) {
     criar_geo("cq 2.5 blue red\nq cep01 0 0 100 60\n");
     geo_processar(CAMINHO_GEO);
@@ -74,7 +69,6 @@ void test_geo_estilo_aplicado(void) {
     TEST_ASSERT_EQUAL_FLOAT(2.5, atof(quadra_get_sw(q)));
 }
 
-// multiplas quadras são todas inseridas
 void test_geo_multiplas_quadras(void) {
     criar_geo(
         "cq 1.0 orange black\n"
@@ -89,8 +83,6 @@ void test_geo_multiplas_quadras(void) {
     TEST_ASSERT_NOT_NULL(cidade_buscar_quadra("cep03"));
 }
 
-
-// arquivo vazio não crasha 
 void test_geo_arquivo_vazio(void) {
     criar_geo("");
     int ret = geo_processar(CAMINHO_GEO);

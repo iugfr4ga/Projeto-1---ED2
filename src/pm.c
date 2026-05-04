@@ -10,8 +10,8 @@
 #define COMPL_TAM 16
 #define DATA_TAM 12
 
-int pm_processar(const char *caminho) {
-    FILE *f = fopen(caminho, "r");
+int pm_processar(const char* caminho) {
+    FILE* f = fopen(caminho, "r");
     if(f == NULL)
         return -1;
 

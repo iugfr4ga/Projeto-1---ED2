@@ -24,12 +24,10 @@ void tearDown(void) {
     remove(CAMINHO_SVG);
 }
 
-// svg_inicializar retorna 0 com caminho válido
 void test_svg_inicializar_valido(void) {
     TEST_PASS();
 }
 
-// svg_inicializar retorna -1 com caminho inválido
 void test_svg_inicializar_invalido(void) {
     svg_finalizar();
     int ret = svg_inicializar("/caminho/invalido/nao_existe/saida.svg");
@@ -37,7 +35,6 @@ void test_svg_inicializar_invalido(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// arquivo gerado contém tag <svg>
 void test_svg_contem_tag_svg(void) {
     svg_finalizar();
     char buf[512];
@@ -47,7 +44,6 @@ void test_svg_contem_tag_svg(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_desenhar_quadra gera tag <rect> com os parâmetros corretos 
 void test_svg_desenhar_quadra_rect(void) {
     svg_desenhar_quadra("cep01", 10, 20, 100, 60, "orange", "black", "1.0");
     svg_finalizar();
@@ -61,7 +57,6 @@ void test_svg_desenhar_quadra_rect(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_desenhar_quadra gera tag <text> com o CEP
 void test_svg_desenhar_quadra_cep(void) {
     svg_desenhar_quadra("cep01", 10, 20, 100, 60, "orange", "black", "1.0");
     svg_finalizar();
@@ -73,7 +68,6 @@ void test_svg_desenhar_quadra_cep(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_marcar_remocao gera line vermelha
 void test_svg_marcar_remocao(void) {
     svg_marcar_remocao(50, 50);
     svg_finalizar();
@@ -86,7 +80,6 @@ void test_svg_marcar_remocao(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_marcar_moradores gera cinco tags <text>
 void test_svg_marcar_moradores(void) {
     svg_marcar_moradores(0, 0, 100, 60, "1.0", 2, 3, 1, 4, 10);
     svg_finalizar();
@@ -105,7 +98,6 @@ void test_svg_marcar_moradores(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_marcar_obito gera duas linhas vermelhas para face S
 void test_svg_marcar_obito_face_s(void) {
     svg_marcar_obito(50, 50, 'S');
     svg_finalizar();
@@ -118,7 +110,6 @@ void test_svg_marcar_obito_face_s(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_marcar_obito gera marcação para cada face sem crashar
 void test_svg_marcar_obito_todas_faces(void) {
     svg_marcar_obito(50, 50, 'N');
     svg_marcar_obito(50, 50, 'S');
@@ -128,7 +119,6 @@ void test_svg_marcar_obito_todas_faces(void) {
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
-// svg_marcar_mudanca gera <rect> e <text> com cpf
 void test_svg_marcar_mudanca(void) {
     svg_marcar_mudanca(30, 40, "123456789");
     svg_finalizar();
@@ -142,7 +132,6 @@ void test_svg_marcar_mudanca(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_marcar_despejo gera círculo preto para face S
 void test_svg_marcar_despejo_face_s(void) {
     svg_marcar_despejo(50, 50, 'S');
     svg_finalizar();
@@ -155,7 +144,6 @@ void test_svg_marcar_despejo_face_s(void) {
     svg_inicializar(CAMINHO_SVG);
 }
 
-// svg_marcar_despejo gera marcação para cada face sem crashar 
 void test_svg_marcar_despejo_todas_faces(void) {
     svg_marcar_despejo(50, 50, 'N');
     svg_marcar_despejo(50, 50, 'S');
@@ -165,7 +153,6 @@ void test_svg_marcar_despejo_todas_faces(void) {
     TEST_ASSERT_EQUAL_INT(0, ret);
 }
 
-// multiplas quadras são todas desenhadas
 void test_svg_multiplas_quadras(void) {
     svg_desenhar_quadra("cep01", 0,   0, 100, 60, "orange", "black", "1.0");
     svg_desenhar_quadra("cep02", 120, 0, 100, 60, "blue",   "black", "1.0");

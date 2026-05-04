@@ -35,7 +35,7 @@ void test_cidade_inserir_quadra_duplicada_retorna_erro(void) {
 
 void test_cidade_buscar_quadra_existente(void) {
     cidade_inserir_quadra("cep01", 10, 20, 100, 60, "orange", "black", "1.0");
-    const Quadra *q = cidade_buscar_quadra("cep01");
+    const Quadra* q = cidade_buscar_quadra("cep01");
     TEST_ASSERT_NOT_NULL(q);
     TEST_ASSERT_EQUAL_DOUBLE(10, quadra_get_x(q));
     TEST_ASSERT_EQUAL_DOUBLE(20, quadra_get_y(q));
@@ -65,7 +65,7 @@ void test_cidade_remover_quadra_inexistente_retorna_erro(void) {
 void test_cidade_buscar_apos_remover_retorna_null(void) {
     cidade_inserir_quadra("cep01", 0, 0, 100, 60, "orange", "black", "1.0");
     cidade_remover_quadra("cep01");
-    const Quadra *q = cidade_buscar_quadra("cep01");
+    const Quadra* q = cidade_buscar_quadra("cep01");
     TEST_ASSERT_NULL(q);
 }
 

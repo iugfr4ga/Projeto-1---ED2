@@ -34,13 +34,11 @@ void tearDown(void) {
     remove(CAMINHO_TXT);
 }
 
-// txt_inicializar retorna 0 com caminho válido
 void test_txt_inicializar_valido(void) {
     // já inicializado no setUp
     TEST_PASS();
 }
 
-// txt_inicializar retorna -1 com caminho inválido 
 void test_txt_inicializar_invalido(void) {
     txt_finalizar();
     int ret = txt_inicializar("/caminho/invalido/nao_existe/saida.txt");
@@ -49,7 +47,6 @@ void test_txt_inicializar_invalido(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_rq_morador escreve cpf e nome no arquivo
 void test_txt_rq_morador(void) {
     txt_rq_morador("111", "Joao", "Silva");
     txt_finalizar();
@@ -64,7 +61,6 @@ void test_txt_rq_morador(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_censo escreve todas as estatísticas
 void test_txt_censo_escreve_estatisticas(void) {
     int total = 10, moradores = 6, sem_teto = 4, homens = 5, mulheres = 5, mor_h = 3, mor_m = 3, st_h = 2, st_m = 2;
     txt_censo(&total, &moradores, &sem_teto, &homens, &mulheres, &mor_h, &mor_m, &st_h, &st_m);
@@ -82,7 +78,6 @@ void test_txt_censo_escreve_estatisticas(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_censo com total zero não crasha por divisão por zero
 void test_txt_censo_total_zero(void) {
     int total = 0, moradores = 0, sem_teto = 0, homens = 0, mulheres = 0, mor_h = 0, mor_m = 0, st_h = 0, st_m = 0;
 
@@ -97,7 +92,6 @@ void test_txt_censo_total_zero(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_habitante sem-teto não imprime endereço
 void test_txt_habitante_sem_teto(void) {
     pessoas_inserir("111", "Joao", "Silva", 'M', "01/01/1990");
     const Habitante* h = pessoas_buscar("111");
@@ -116,7 +110,6 @@ void test_txt_habitante_sem_teto(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_habitante morador imprime endereço
 void test_txt_habitante_morador(void) {
     pessoas_inserir("111", "Joao", "Silva", 'M', "01/01/1990");
     pessoas_definir_endereco("111", "cep01", 'S', 45, "apto1");
@@ -134,7 +127,6 @@ void test_txt_habitante_morador(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_obito sem-teto não imprime endereço
 void test_txt_obito_sem_teto(void) {
     pessoas_inserir("222", "Maria", "Santos", 'F', "15/06/1985");
     const Habitante* h = pessoas_buscar("222");
@@ -151,7 +143,6 @@ void test_txt_obito_sem_teto(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_obito morador imprime endereço
 void test_txt_obito_morador(void) {
     pessoas_inserir("222", "Maria", "Santos", 'F', "15/06/1985");
     pessoas_definir_endereco("222", "cep02", 'N', 10, "-");
@@ -168,7 +159,6 @@ void test_txt_obito_morador(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_despejo imprime habitante e endereço
 void test_txt_despejo(void) {
     pessoas_inserir("333", "Pedro", "Lima", 'M', "20/03/2000");
     pessoas_definir_endereco("333", "cep03", 'L', 30, "casa");
@@ -187,19 +177,16 @@ void test_txt_despejo(void) {
     txt_inicializar(CAMINHO_TXT);
 }
 
-// txt_habitante com NULL não crasha
 void test_txt_habitante_null(void) {
     txt_habitante(NULL);
     TEST_PASS();
 }
 
-// txt_obito com NULL não crasha
 void test_txt_obito_null(void) {
     txt_obito(NULL);
     TEST_PASS();
 }
 
-// txt_despejo com NULL não crasha
 void test_txt_despejo_null(void) {
     txt_despejo(NULL);
     TEST_PASS();

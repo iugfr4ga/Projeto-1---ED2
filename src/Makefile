@@ -18,9 +18,9 @@ $(PROJ_NAME): $(OBJETOS)
 
 # Dependencias de cada modulo
 hash_extensivel.o: hash_extensivel.c hash_extensivel.h
-cidade.o: cidade.c cidade.h hash_extensivel.h
+cidade.o: cidade.c cidade.h hash_extensivel.h svg.h
 pessoas.o: pessoas.c pessoas.h hash_extensivel.h
-geo.o: geo.c geo.h cidade.h svg.h
+geo.o: geo.c geo.h cidade.h
 pm.o: pm.c pm.h pessoas.h
 svg.o: svg.c svg.h
 txt.o: txt.c txt.h pessoas.h
@@ -31,8 +31,8 @@ ted.o: ted.c cidade.h pessoas.h geo.h pm.h qry.h svg.h txt.h
 tst_hash_extensivel: tst/teste_hash_extensivel.c hash_extensivel.o
 	$(CC) $(CFLAGS) -o tst/tst_hash_extensivel tst/teste_hash_extensivel.c hash_extensivel.o $(UNITY)
 
-tst_cidade: tst/teste_cidade.c cidade.o hash_extensivel.o
-	$(CC) $(CFLAGS) -DUNITY_INCLUDE_DOUBLE -o tst/tst_cidade tst/teste_cidade.c cidade.o hash_extensivel.o $(UNITY)
+tst_cidade: tst/teste_cidade.c cidade.o hash_extensivel.o svg.o
+	$(CC) $(CFLAGS) -DUNITY_INCLUDE_DOUBLE -o tst/tst_cidade tst/teste_cidade.c cidade.o hash_extensivel.o svg.o $(UNITY)
 
 tst_pessoas: tst/teste_pessoas.c pessoas.o hash_extensivel.o 
 	$(CC) $(CFLAGS) -DUNITY_INCLUDE_DOUBLE -o tst/tst_pessoas tst/teste_pessoas.c pessoas.o hash_extensivel.o $(UNITY)

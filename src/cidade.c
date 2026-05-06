@@ -1,5 +1,6 @@
 #include "cidade.h"
 #include "hash_extensivel.h"
+#include "svg.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -88,6 +89,19 @@ int cidade_coordenadas(const char* cep, char face, int num, const char* sw, doub
         default: return -1;
     }
     return 0;
+}
+
+static int cb_desenhar_quadra(const char* chave, const void* registro, void* ctx) {
+    (void) chave;
+    (void) ctx;
+    const Quadra* q = (const Quadra*) registro;
+    svg_desenhar_quadra(quadra_get_cep(q), quadra_get_x(q), quadra_get_y(q), quadra_get_w(q), quadra_get_h(q), 
+    quadra_get_cfill(q), quadra_get_cstrk(q), quadra_get_sw(q));
+    return 0;
+}
+
+void cidade_desenhar_quadras(void) {
+    hash_iterar(hf_quadras, cb_desenhar_quadra, NULL);
 }
 
 const char* quadra_get_cep(const Quadra* q) { 

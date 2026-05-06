@@ -1,39 +1,85 @@
 #include "svg.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-static FILE* svg_arquivo = NULL;
+static FILE* svg_arquivo = NULL;        // svg com as marcações
+static FILE* svg_tmp_quadras = NULL;    // svg das quadras
+static char* svg_caminho = NULL;        // path svg final
+
+#define TMP_QUADRAS "quadras.tmp"       // arquivo temporario para desenhar as quadras
 
 int svg_inicializar(const char* caminho) {
-    svg_arquivo = fopen(caminho, "w");
+    svg_caminho = malloc(strlen(caminho) + 1);
+    if(svg_caminho == NULL)
+        return -1;
+    strcpy(svg_caminho, caminho);
+
+    svg_arquivo = tmpfile();
     if(svg_arquivo == NULL)
         return -1;
 
-    fprintf(svg_arquivo,"<svg xmlns=\"http://www.w3.org/2000/svg\""
-            " width=\"%d\" height=\"%d\">\n",
-            SVG_LARGURA, SVG_ALTURA);
+    svg_tmp_quadras = fopen(TMP_QUADRAS, "w");
+    if(svg_tmp_quadras == NULL) {
+        fclose(svg_arquivo);
+        svg_arquivo = NULL;
+        return -1;
+    }
     return 0;
 }
 
+static void copiar_arquivo(FILE* dest, FILE* src) {
+    rewind(src);
+    char buf[4096];
+    size_t n;
+    while((n = fread(buf, 1, sizeof(buf), src)) > 0)
+        fwrite(buf, 1, n, dest);
+}
+
 void svg_finalizar(void) {
-    if(svg_arquivo == NULL)
+    if(svg_arquivo == NULL || svg_tmp_quadras == NULL || svg_caminho == NULL)
         return;
-    fprintf(svg_arquivo, "</svg>\n");
+
+    fclose(svg_tmp_quadras);
+    svg_tmp_quadras = NULL;
+
+    // abre arquivo final e monta na ordem certa
+    FILE* saida = fopen(svg_caminho, "w");
+    if(saida != NULL) {
+        fprintf(saida, "<svg xmlns=\"http://www.w3.org/2000/svg\""
+                " width=\"%d\" height=\"%d\">\n",
+                SVG_LARGURA, SVG_ALTURA);
+
+        FILE* fq = fopen(TMP_QUADRAS, "r");
+        if(fq != NULL) {
+            copiar_arquivo(saida, fq);
+            fclose(fq);
+        }
+
+        copiar_arquivo(saida, svg_arquivo);
+
+        fprintf(saida, "</svg>\n");
+        fclose(saida);
+    }
+
     fclose(svg_arquivo);
     svg_arquivo = NULL;
+
+    remove(TMP_QUADRAS);
+    free(svg_caminho);
+    svg_caminho = NULL;
 }
 
 void svg_desenhar_quadra(const char* cep, double x, double y, double w, double h, const char* cfill, const char* cstrk, const char* sw) {
-    if(svg_arquivo == NULL)
+    if(svg_tmp_quadras == NULL)
         return;
 
-    fprintf(svg_arquivo,
+    fprintf(svg_tmp_quadras,
             "<rect x=\"%.2f\" y=\"%.2f\" width=\"%.2f\" height=\"%.2f\""
             " fill=\"%s\" stroke=\"%s\" stroke-width=\"%s\"/>\n",
             x, y, w, h, cfill, cstrk, sw);
 
-    // CEP no centro da quadra
-    fprintf(svg_arquivo,
+    fprintf(svg_tmp_quadras,
             "<text x=\"%.2f\" y=\"%.2f\""
             " text-anchor=\"start\" dominant-baseline=\"hanging\""
             " font-size=\"10\" font-weight=\"bold\" fill=\"black\">%s</text>\n",

@@ -37,6 +37,11 @@ const Quadra* cidade_buscar_quadra(const char* cep);
 */
 int cidade_coordenadas(const char* cep, char face, int num, const char* sw, double* px, double* py);
 
+/*  Desenha todas as quadras da cidade no arquivo SVG.
+    O arquivo SVG deve ser inicializado antes de chamar esta função.
+*/
+void cidade_desenhar_quadras(void);
+
 // getters
 const char* quadra_get_cep(const Quadra* q);
 double quadra_get_x(const Quadra* q);

@@ -2,12 +2,12 @@
 #define GEO_H
 
 /*  Um arquivo .geo executa comandos sobre as quadras de uma cidade. 
-    A cidade e o SVG devem ser inicializados antes de processar o arquivo .geo.
+    A cidade deve ser inicializada antes de processar o arquivo .geo.
     Os comandos do arquivo .geo são:
 
     q <cep> <x> <y> <w> <h>
-    - Insere uma quadra (retangular) com os dados fornecidos e imprime no arquivo SVG. As cores de preenchimento
-    e borda e a largura de borda são as atuais (definidas pelo comando cq ou vazias no início).
+    - Insere uma quadra (retangular) com os dados fornecidos. As cores de preenchimento e borda e a largura 
+    de borda são as atuais (definidas pelo comando cq ou vazias no início).
 
     cq <sw> <cfill> <cstrk>
     - Define as cores de preenchimento e borda e a largura de borda atuais para os próximos comandos q.

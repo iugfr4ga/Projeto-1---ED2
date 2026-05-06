@@ -1,6 +1,5 @@
 #include "geo.h"
 #include "cidade.h"
-#include "svg.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -31,7 +30,6 @@ int geo_processar(const char* caminho) {
             double x, y, w, h;
             if(sscanf(linha, "%*s %31s %lf %lf %lf %lf", cep, &x, &y, &w, &h) == 5) {
                 cidade_inserir_quadra(cep, x, y, w, h, cfill, cstrk, sw);
-                svg_desenhar_quadra(cep, x, y, w, h, cfill, cstrk, sw);
             }
         } 
         else if(strcmp(cmd, "cq") == 0) {

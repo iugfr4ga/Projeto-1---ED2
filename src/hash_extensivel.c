@@ -441,8 +441,7 @@ bool hash_contem(HashExtensivel* h, const char* chave) {
     return hash_buscar(h, chave, NULL) == 0;
 }
 
-int hash_iterar(HashExtensivel* h, int (*callback)(const char* chave, const void* registro, void* ctx), void* ctx)
-{
+int hash_iterar(HashExtensivel* h, int (*callback)(const char* chave, const void* registro, void* ctx), void* ctx) {
     if(h == NULL || callback == NULL)
         return -1;
 

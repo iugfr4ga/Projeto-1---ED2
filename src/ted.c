@@ -139,6 +139,7 @@ int main(int argc, char *argv[]) {
     // processa .geo e .pm
     if(svg_inicializar(caminho_svg_base) == 0) {
         geo_processar(caminho_geo);
+        cidade_desenhar_quadras();
         svg_finalizar();
     } 
     else {
@@ -158,9 +159,9 @@ int main(int argc, char *argv[]) {
             printf("Erro ao inicializar TXT de consultas.\n");
             svg_finalizar();
         } 
-        else {
-            geo_processar(caminho_geo);          
+        else {          
             qry_processar(caminho_qry);
+            cidade_desenhar_quadras();
             txt_finalizar();
             svg_finalizar();
         }

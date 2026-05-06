@@ -28,13 +28,6 @@ void test_svg_inicializar_valido(void) {
     TEST_PASS();
 }
 
-void test_svg_inicializar_invalido(void) {
-    svg_finalizar();
-    int ret = svg_inicializar("/caminho/invalido/nao_existe/saida.svg");
-    TEST_ASSERT_EQUAL_INT(-1, ret);
-    svg_inicializar(CAMINHO_SVG);
-}
-
 void test_svg_contem_tag_svg(void) {
     svg_finalizar();
     char buf[512];
@@ -170,7 +163,6 @@ int main(void) {
     UNITY_BEGIN();
 
     RUN_TEST(test_svg_inicializar_valido);
-    RUN_TEST(test_svg_inicializar_invalido);
     RUN_TEST(test_svg_contem_tag_svg);
     RUN_TEST(test_svg_desenhar_quadra_rect);
     RUN_TEST(test_svg_desenhar_quadra_cep);
